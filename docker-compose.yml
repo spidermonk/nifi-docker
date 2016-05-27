@@ -1,10 +1,34 @@
-nifi:
-  image: anoopnair/nifi-alpine:latest
-  ports:
-    - "28080:8080"
-  volumes:
-    - /dev/xsl:/opt/nifi/xsl
-  external_links:
-    - elasticsearchkibanadocker_elasticsearch_1:elasticsearch
+version: '2'
+
+services:
+  elasticsearch:
+    image: elasticsearch:latest
+    container_name: elasticsearch
+    command: elasticsearch
+    volumes:
+       - ./elasticsearch/config/:/usr/share/elasticsearch/config/
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  kibana:
+    build: kibana/
+    container_name: kibana
+    volumes:
+      - ./kibana/config/:/opt/kibana/config/
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+
+  nifi:
+    image: anoopnair/nifi-alpine:latest
+    ports:
+      - "28080:8080"
+    external_links:
+      - elasticsearch
+      - kibana
+#  volumes:
+#    - /dev/xsl:/opt/nifi/xsl
 
   
